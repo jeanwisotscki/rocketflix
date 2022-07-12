@@ -1,11 +1,10 @@
 import { API_KEY, BASE_URL, IMG_URL, language } from "./api.js";
 
 const btn = document.querySelector("#btn");
-const posterElement = document.querySelector("#movie-poster");
+const posterContainer = document.querySelector(".poster-container");
+const posterElement = document.createElement("img");
 const titleElement = document.querySelector("#movie-title");
 const descriptionElement = document.querySelector("#movie-description");
-
-let movie;
 
 async function fetchMovie() {
   const movie_id = Math.floor(Math.random() * 998796);
@@ -15,13 +14,13 @@ async function fetchMovie() {
 
   const { adult, poster_path, title, overview } = data;
 
-  const isMovieOk = !adult && !!poster_path && !!title && !!overview;
+  const isMovieOk = !adult && !!poster_path && !!title;
 
   if (isMovieOk) {
-    movie = { adult, poster_path, title, overview };
+    const movie = { poster_path, title, overview };
     createElement(movie);
   } else {
-    movie = "Ops, hoje não é dia de assistir filme. Bora codar!";
+    const movie = "Ops, hoje não é dia de assistir filme. Bora codar!";
     createElement(movie);
   }
   return;
@@ -30,15 +29,18 @@ async function fetchMovie() {
 function createElement(movie) {
   if (typeof movie !== "string") {
     posterElement.src = `${IMG_URL}${movie.poster_path}`;
+    posterContainer.appendChild(posterElement);
     titleElement.textContent = movie.title;
-    descriptionElement.textContent = movie.overview;
+    movie.overview
+      ? (descriptionElement.textContent = movie.overview)
+      : (descriptionElement.textContent =
+          "Não encontramos descrição para este filme.");
   } else {
+    posterElement.src =
+      "https://img.olhardigital.com.br/wp-content/uploads/2021/12/Code.jpg";
     titleElement.textContent = movie;
+    descriptionElement.textContent = "";
   }
 }
 
-btn.addEventListener("click", () => {
-  console.log(fetchMovie());
-});
-// 998796
-// https://api.themoviedb.org/3/movie/{movie_id}/images?api_key=<<api_key>>&language=en-US
+btn.addEventListener("click", fetchMovie);
